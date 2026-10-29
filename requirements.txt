@@ -27,3 +27,8 @@ pydantic
 
 # Logging and terminal output
 rich
+
+
+# API Backend framework
+fastapi
+uvicorn
