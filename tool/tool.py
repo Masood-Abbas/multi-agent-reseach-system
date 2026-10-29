@@ -6,7 +6,9 @@ from tavily import TavilyClient
 from bs4 import BeautifulSoup
 from rich import print
 
-load_dotenv()
+from pathlib import Path
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 
 
@@ -39,7 +41,7 @@ def scrap_url(url:str)->str:
         soup=BeautifulSoup(res.text,"html.parser")
         for tag in soup(["script","style","header","footer"]):
             tag.decompose()
-        return soup.get_text(separator=" ",strip=True)[:3000]
+        return soup.get_text(separator=" ",strip=True)[:1500]
     except Exception as e:
          return f" Could not scrap URL : {e}"
 
