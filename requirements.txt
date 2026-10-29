@@ -1,0 +1,29 @@
+
+# LangChain core and agent framework
+langchain
+langchain-core
+langchain-community
+langchain-openai
+
+streamlit
+
+# Tavily web search
+tavily-python
+
+# Web scraping with BeautifulSoup
+beautifulsoup4
+requests
+
+
+
+# Environment variables
+python-dotenv
+
+# Data validation and structured outputs
+pydantic
+
+
+
+
+# Logging and terminal output
+rich
