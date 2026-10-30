@@ -10,7 +10,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent
 sys.path.append(str(ROOT_DIR))
 
-from agents.agent import build_serch_tool, build_reader_agent, writer_chain, critic_chain
+from agents.agent import build_serch_tool, build_reader_agent, writer_chain, critic_chain, chat_chain
+from langchain_core.messages import HumanMessage, AIMessage
 
 app = FastAPI(
     title="ResearchAI - Multi-Agent Research Assistant API",
@@ -203,6 +204,49 @@ def execute_research(payload: ResearchRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Research pipeline failed: {str(e)}")
+
+# ---------------------------------------------------------------------------
+# Conversational Memory Chat Endpoint
+# ---------------------------------------------------------------------------
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    query: str
+    research_context: Optional[str] = ""
+    history: List[ChatMessage] = []
+
+class ChatResponse(BaseModel):
+    answer: str
+
+@app.post("/api/chat", response_model=ChatResponse)
+def execute_chat(payload: ChatRequest):
+    query = payload.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    try:
+        # Convert incoming chat history into LangChain messages
+        messages = []
+        for msg in payload.history:
+            if msg.role == "user":
+                messages.append(HumanMessage(content=msg.content))
+            else:
+                messages.append(AIMessage(content=msg.content))
+
+        # Append current user query
+        messages.append(HumanMessage(content=query))
+
+        # Run memory-aware chat chain
+        answer = chat_chain.invoke({
+            "research_context": payload.research_context,
+            "messages": messages,
+        })
+
+        return ChatResponse(answer=answer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chat execution failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

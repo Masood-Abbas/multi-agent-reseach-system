@@ -53,3 +53,26 @@ export async function runResearch(topic) {
   }
 }
 
+/**
+ * Send a chat query with conversation memory.
+ * @param {string} query
+ * @param {string} researchContext
+ * @param {Array<{role: string, content: string}>} history
+ */
+export async function sendChatMessage(query, researchContext = '', history = []) {
+  try {
+    const res = await client.post('/api/chat', {
+      query,
+      research_context: researchContext,
+      history,
+    });
+    return { ok: true, data: res.data };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error.response?.data?.detail || error.message || 'Failed to get chat response',
+    };
+  }
+}
+
+

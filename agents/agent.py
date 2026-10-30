@@ -16,7 +16,7 @@ from tool.tool import web_search, scrap_url
 load_dotenv(ROOT_DIR / ".env")
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash"
+    model="gemini-3.5-flash-lite"
 )
 
 # create the 1st agent 
@@ -105,3 +105,26 @@ one line verdict:
 ])
 
 critic_chain = critic_prompt | llm | StrOutputParser()
+
+# ---------------------------------------------------------------------------
+# Follow-up Chat / Memory Agent for Q&A on Research Reports
+# ---------------------------------------------------------------------------
+from langchain_core.prompts import MessagesPlaceholder
+from langgraph.checkpoint.memory import MemorySaver
+
+chat_prompt = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "You are an AI research assistant with memory. You have access to the research report, web search results, and scraped content from the research phase.\n"
+        "Context from Research:\n{research_context}\n\n"
+        "Answer the user's follow-up questions accurately based on the research context and previous conversation. "
+        "If asked to refine or rewrite sections of the report, maintain an authoritative and structured tone."
+    ),
+    MessagesPlaceholder(variable_name="messages"),
+])
+
+chat_chain = chat_prompt | llm | StrOutputParser()
+
+# Memory checkpointer to store chat history per session/thread
+research_memory = MemorySaver()
+

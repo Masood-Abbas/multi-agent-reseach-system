@@ -4,6 +4,7 @@ import {
   Globe, 
   Award, 
   Layout, 
+  MessageSquare,
   ExternalLink, 
   Calendar,
   CheckCircle2,
@@ -12,9 +13,10 @@ import {
 import ReportViewer from './ReportViewer';
 import SourceList from './SourceList';
 import QualityReview from './QualityReview';
+import MemoryChat from './MemoryChat';
 
 export default function ResearchResults({ data }) {
-  const [activeTab, setActiveTab] = useState('report'); // 'overview' | 'report' | 'sources' | 'review'
+  const [activeTab, setActiveTab] = useState('report'); // 'report' | 'chat' | 'sources' | 'review' | 'overview'
 
   if (!data) return null;
 
@@ -22,6 +24,7 @@ export default function ResearchResults({ data }) {
 
   const tabs = [
     { id: 'report', label: 'Final Report', icon: FileText },
+    { id: 'chat', label: 'Ask Follow-Ups (Memory)', icon: MessageSquare },
     { id: 'sources', label: `Sources (${sources.length})`, icon: Globe },
     { id: 'review', label: 'Quality Review', icon: Award },
     { id: 'overview', label: 'Research Overview', icon: Layout },
@@ -74,6 +77,10 @@ export default function ResearchResults({ data }) {
       <div className="p-6">
         {activeTab === 'report' && (
           <ReportViewer report={report} topic={topic} />
+        )}
+
+        {activeTab === 'chat' && (
+          <MemoryChat researchData={data} />
         )}
 
         {activeTab === 'sources' && (
